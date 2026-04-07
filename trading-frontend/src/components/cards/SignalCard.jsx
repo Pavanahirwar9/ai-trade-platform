@@ -74,23 +74,23 @@ export default function SignalCard({ signal, onExecute }) {
 
         {/* Confidence + action */}
         <div className="flex items-center justify-between">
-          <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+          <span className={`text-[11px] font-bold tracking-wider px-3 py-1 rounded-full ${
             signal.confidence === 'HIGH' ? 'bg-[#064E3B] text-[#10B981]' :
             signal.confidence === 'MEDIUM' ? 'bg-[#78350F] text-[#F59E0B]' :
             'bg-[#1F2937] text-[#9CA3AF]'
           }`}>
-            {signal.confidence || 'LOW'} confidence
+            {signal.confidence || 'LOW'} CONFIDENCE
           </span>
-          {signal.signal !== 'HOLD' && (
-            <button onClick={() => onExecute?.(signal)}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                signal.signal === 'BUY'
-                  ? 'bg-[#10B981] hover:bg-[#059669] text-white'
-                  : 'bg-[#EF4444] hover:bg-[#DC2626] text-white'
-              }`}>
-              Execute {signal.signal}
-            </button>
-          )}
+          <button onClick={() => onExecute?.(signal)}
+            className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg ${
+              signal.signal === 'BUY'
+                ? 'bg-[#10B981] hover:bg-[#059669] text-white shadow-[#10B981]/20'
+                : signal.signal === 'SELL'
+                ? 'bg-[#EF4444] hover:bg-[#DC2626] text-white shadow-[#EF4444]/20'
+                : 'bg-[#3B82F6] hover:bg-[#2563EB] text-white shadow-[#3B82F6]/20'
+            }`}>
+            {signal.signal === 'HOLD' ? 'Trade' : `Execute ${signal.signal}`}
+          </button>
         </div>
       </div>
     </div>

@@ -45,28 +45,36 @@ router.post('/execute', async (req, res, next) => {
  * GET /api/trades/history
  * Returns all simulated trade history.
  */
-router.get('/history', (req, res) => {
-  const trades = getTradeHistory();
-  res.json({
-    success: true,
-    count: trades.length,
-    data: trades,
-  });
+router.get('/history', async (req, res, next) => {
+  try {
+    const trades = await getTradeHistory();
+    res.json({
+      success: true,
+      count: trades.length,
+      data: trades,
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
  * GET /api/trades/history/:symbol
  * Returns trade history for a specific stock.
  */
-router.get('/history/:symbol', (req, res) => {
-  const { symbol } = req.params;
-  const trades = getTradeHistoryBySymbol(symbol);
-  res.json({
-    success: true,
-    symbol,
-    count: trades.length,
-    data: trades,
-  });
+router.get('/history/:symbol', async (req, res, next) => {
+  try {
+    const { symbol } = req.params;
+    const trades = await getTradeHistoryBySymbol(symbol);
+    res.json({
+      success: true,
+      symbol,
+      count: trades.length,
+      data: trades,
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

@@ -11,6 +11,8 @@ const config = require('../config/config');
 const { scanMultipleSymbols } = require('../services/signalEngine');
 const { executeTrade } = require('../services/tradeExecutor');
 const { logger } = require('../middleware/logger');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 /** Default quantity to auto-trade when AUTO_EXECUTE_SIGNALS is true */
 const DEFAULT_AUTO_TRADE_QTY = 5;
@@ -29,7 +31,13 @@ const runScan = async () => {
   }
 
   try {
-    const results = await scanMultipleSymbols(config.watchlist);
+    // Fetch watchlist dynamically from DB, fallback to config.watchlist
+    const dbWatchlist = await prisma.watchlist.findMany();
+    const symbolsToScan = dbWatchlist.length > 0 
+      ? dbWatchlist.map(w => w.symbol) 
+      : config.watchlist;
+
+    const results = await scanMultipleSymbols(symbolsToScan);
 
     for (const result of results) {
       if (!result.success) {
@@ -82,7 +90,6 @@ const startMarketScanJob = () => {
   );
 
   logger.info(`Market scan cron job scheduled: ${schedule} (${config.market.timezone})`);
-  logger.info(`Watchlist: ${config.watchlist.join(', ')}`);
   logger.info(`Auto-execute signals: ${config.autoExecuteSignals}`);
 
   return job;

@@ -55,7 +55,7 @@ const executeTrade = async (symbol, signal, quantity) => {
  * @param {number} quantity - Shares to buy.
  * @returns {object} Trade result.
  */
-const executeBuy = (symbol, price, quantity) => {
+const executeBuy = async (symbol, price, quantity) => {
   const grossCost = price * quantity;
   const brokerage = parseFloat((grossCost * config.fees.brokerage).toFixed(2));
   const totalCost = parseFloat((grossCost + brokerage).toFixed(2));
@@ -76,7 +76,7 @@ const executeBuy = (symbol, price, quantity) => {
   portfolio.addHolding(symbol, quantity, price);
 
   // Record trade
-  const trade = tradeModel.recordTrade({
+  const trade = await tradeModel.recordTrade({
     symbol,
     type: 'BUY',
     quantity,
@@ -102,7 +102,7 @@ const executeBuy = (symbol, price, quantity) => {
  * @param {number} quantity - Shares to sell.
  * @returns {object} Trade result.
  */
-const executeSell = (symbol, price, quantity) => {
+const executeSell = async (symbol, price, quantity) => {
   const holding = portfolio.getHolding(symbol);
   if (!holding) {
     const err = new Error(`No holdings found for ${symbol}. Cannot sell.`);
@@ -130,7 +130,7 @@ const executeSell = (symbol, price, quantity) => {
   portfolio.removeHolding(symbol, quantity);
 
   // Record trade
-  const trade = tradeModel.recordTrade({
+  const trade = await tradeModel.recordTrade({
     symbol,
     type: 'SELL',
     quantity,
@@ -163,7 +163,7 @@ const getPortfolio = () => {
  *   If not provided, current holdings' stored prices are used.
  * @returns {object} P&L summary.
  */
-const calculatePnL = (livePriceMap) => {
+const calculatePnL = async (livePriceMap) => {
   const pf = portfolio.getPortfolio();
 
   // Update prices if live prices provided
@@ -184,7 +184,7 @@ const calculatePnL = (livePriceMap) => {
   currentValue = parseFloat(currentValue.toFixed(2));
 
   // Realized P&L from trade history
-  const allTrades = tradeModel.getAllTrades();
+  const allTrades = await tradeModel.getAllTrades();
   let realizedPnL = 0;
   // Simple approach: sum all SELL proceeds minus cost basis
   const sellTrades = allTrades.filter((t) => t.type === 'SELL');

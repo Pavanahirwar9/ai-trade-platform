@@ -28,7 +28,7 @@ router.get('/', async (req, res, next) => {
       });
 
       // Recalculate with live prices
-      const pnlData = calculatePnL(priceMap);
+      const pnlData = await calculatePnL(priceMap);
       return res.json({ success: true, data: pnlData });
     }
 
@@ -68,7 +68,7 @@ router.get('/pnl', async (req, res, next) => {
       });
     }
 
-    const pnlData = calculatePnL(priceMap);
+    const pnlData = await calculatePnL(priceMap);
     res.json({ success: true, data: pnlData });
   } catch (err) {
     next(err);

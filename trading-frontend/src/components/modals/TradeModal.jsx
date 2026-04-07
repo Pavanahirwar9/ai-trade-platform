@@ -8,19 +8,26 @@ import usePortfolioStore from '../../store/portfolioStore';
 
 export default function TradeModal({ isOpen, onClose, symbol, signal, price }) {
   const [quantity, setQuantity] = useState(1);
+  const [activeSignal, setActiveSignal] = useState(signal === 'HOLD' ? 'BUY' : signal);
   const qc = useQueryClient();
   const cash = usePortfolioStore((s) => s.cashBalance);
 
-  const isBuy = signal === 'BUY';
+  // Sync state if modal reopens with a new signal
+  useEffect(() => {
+    setActiveSignal(signal === 'HOLD' ? 'BUY' : signal);
+    setQuantity(1);
+  }, [signal, isOpen]);
+
+  const isBuy = activeSignal === 'BUY';
   const grossAmount = price * quantity;
   const brokerage = grossAmount * 0.001;
   const stt = isBuy ? 0 : grossAmount * 0.001;
   const netAmount = isBuy ? grossAmount + brokerage : grossAmount - brokerage - stt;
 
   const mutation = useMutation({
-    mutationFn: () => executeTrade(symbol, signal, quantity),
+    mutationFn: () => executeTrade(symbol, activeSignal, quantity),
     onSuccess: () => {
-      toast.success(`✅ ${signal} order placed for ${quantity} shares of ${symbol?.replace('.NS', '')}`);
+      toast.success(`✅ ${activeSignal} order placed for ${quantity} shares of ${symbol?.replace('.NS', '')}`);
       qc.invalidateQueries({ queryKey: ['portfolio'] });
       qc.invalidateQueries({ queryKey: ['trades'] });
       qc.invalidateQueries({ queryKey: ['portfolio', 'pnl'] });
@@ -47,16 +54,29 @@ export default function TradeModal({ isOpen, onClose, symbol, signal, price }) {
         </div>
 
         <div className="p-5 space-y-5">
-          {/* Signal + Price */}
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-[#9CA3AF]">Signal</p>
-              <span className={`text-lg font-bold ${isBuy ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>{signal}</span>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-[#9CA3AF]">Current Price</p>
-              <p className="text-lg font-bold font-mono text-white">{formatINR(price)}</p>
-            </div>
+          {/* Signal Selection */}
+          <div className="flex bg-[#0A0E17] rounded-lg p-1 border border-[#1F2937]">
+            <button
+              onClick={() => setActiveSignal('BUY')}
+              className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${
+                isBuy ? 'bg-[#10B981] text-white' : 'text-[#6B7280] hover:text-white'
+              }`}
+            >
+              BUY
+            </button>
+            <button
+              onClick={() => setActiveSignal('SELL')}
+              className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${
+                !isBuy ? 'bg-[#EF4444] text-white' : 'text-[#6B7280] hover:text-white'
+              }`}
+            >
+              SELL
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-1 items-end pt-2">
+            <p className="text-xs text-[#9CA3AF]">Current Price</p>
+            <p className="text-2xl font-bold font-mono text-white">{formatINR(price)}</p>
           </div>
 
           {/* Quantity */}
@@ -96,16 +116,15 @@ export default function TradeModal({ isOpen, onClose, symbol, signal, price }) {
             Available Cash: <span className="font-mono text-[#9CA3AF]">{formatINR(cash)}</span>
           </p>
 
-          {/* Actions */}
-          <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 px-4 py-3 bg-[#1F2937] hover:bg-[#374151] text-[#9CA3AF] rounded-lg font-medium transition-colors">
+          <div className="flex gap-3 pt-4">
+            <button onClick={onClose} className="flex-1 px-4 py-3 bg-[#1F2937] hover:bg-[#374151] text-[#9CA3AF] rounded-xl font-medium transition-colors">
               Cancel
             </button>
             <button onClick={() => mutation.mutate()} disabled={mutation.isPending}
-              className={`flex-1 px-4 py-3 rounded-lg font-semibold text-white transition-colors disabled:opacity-50 ${
+              className={`flex-1 px-4 py-3 rounded-xl font-semibold text-white transition-colors disabled:opacity-50 ${
                 isBuy ? 'bg-[#10B981] hover:bg-[#059669]' : 'bg-[#EF4444] hover:bg-[#DC2626]'
               }`}>
-              {mutation.isPending ? 'Executing...' : `Confirm ${signal}`}
+              {mutation.isPending ? 'Executing...' : `Confirm ${activeSignal}`}
             </button>
           </div>
         </div>

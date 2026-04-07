@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
@@ -7,6 +8,7 @@ import Market from './pages/Market';
 import Signals from './pages/Signals';
 import Portfolio from './pages/Portfolio';
 import Trades from './pages/Trades';
+import useWatchlistStore from './store/watchlistStore';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,6 +20,12 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+  const fetchWatchlist = useWatchlistStore((state) => state.fetchWatchlist);
+
+  useEffect(() => {
+    fetchWatchlist();
+  }, [fetchWatchlist]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>

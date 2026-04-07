@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^6.4.1",
     "axios": "^1.14.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -28,5 +29,8 @@
     "totp-generator": "^2.0.1",
     "winston": "^3.17.0",
     "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "prisma": "^6.4.1"
   }
 }

@@ -69,7 +69,7 @@ const verifyToken = async () => {
 /** Get live LTP for an NSE Symbol (Note: Angel expects '3045' token id instead of 'RELIANCE.NS', but using generic string here) */
 const getLiveQuote = async (symbol) => {
   await verifyToken();
-  const token = getAngelTokenMap(symbol);
+  const token = await getAngelTokenMap(symbol);
 
   try {
     const res = await axios.post('https://apiconnect.angelbroking.com/rest/secure/angelbroking/order/v1/getLtpData', {
@@ -118,7 +118,7 @@ const getLiveQuote = async (symbol) => {
 /** Get Historical OHLCV data */
 const getHistoricalData = async (symbol, period) => {
   await verifyToken();
-  const token = getAngelTokenMap(symbol);
+  const token = await getAngelTokenMap(symbol);
 
   const fromdate = new Date();
   // Fetch at least 14 months to ensure ~280 trading days for the SMA-200. 
@@ -185,7 +185,10 @@ const getMultipleQuotes = async (symbols) => {
 };
 
 /** Helper map for typical top NSE stocks -> Angel Tokens */
-const getAngelTokenMap = (symbol) => {
+let globalInstrumentCache = [];
+
+const getAngelTokenMap = async (symbol) => {
+  // Check hardcoded first
   const tokens = {
     'RELIANCE.NS': { angelSymbol: 'RELIANCE-EQ', angelToken: '2885' },
     'TCS.NS': { angelSymbol: 'TCS-EQ', angelToken: '11536' },
@@ -196,8 +199,33 @@ const getAngelTokenMap = (symbol) => {
     'TATAMOTORS.NS': { angelSymbol: 'TATAMOTORS-EQ', angelToken: '3456' },
     'ICICIBANK.NS': { angelSymbol: 'ICICIBANK-EQ', angelToken: '4963' }
   };
-  if (!tokens[symbol]) throw new Error(`Symbol ${symbol} not in hardcoded Angel Token map.`);
-  return tokens[symbol];
+  
+  if (tokens[symbol]) return tokens[symbol];
+
+  // If not found, check the global cache from Angel One
+  if (globalInstrumentCache.length === 0) {
+    try {
+      console.log("Fetching Master Instrument JSON from Angel One for token lookup...");
+      const { data } = await axios.get("https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json");
+      globalInstrumentCache = data.filter(item => item.exch_seg === 'NSE' && item.symbol.includes('-EQ'));
+    } catch (err) {
+      console.error("Failed to fetch instrument cache:", err);
+      throw new Error(`Symbol ${symbol} not in hardcoded map, and failed to load dynamic instruments.`);
+    }
+  }
+
+  // Strip '.NS' if user passed it, because Angel uses '-EQ'
+  let searchName = symbol.replace('.NS', '');
+  if (!searchName.endsWith('-EQ')) {
+    searchName += '-EQ';
+  }
+  
+  // Find in cache
+  const found = globalInstrumentCache.find(i => i.symbol === searchName || i.symbol === symbol.replace('.NS', ''));
+  
+  if (!found) throw new Error(`Symbol ${symbol} not found in Angel One Master Instrument List.`);
+
+  return { angelSymbol: found.symbol, angelToken: found.token };
 };
 
 module.exports = { getLiveQuote, getHistoricalData, getMultipleQuotes };

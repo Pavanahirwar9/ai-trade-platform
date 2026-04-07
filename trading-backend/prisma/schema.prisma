@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Portfolio {
+  id            Int      @id @default(1)
+  cashBalance   Float    @default(0.0) // E.g., Initial: 10,000,00
+  totalInvested Float    @default(0.0) // Sum of Avg Price * Qty across holdings
+  dayPnl        Float    @default(0.0)
+  realizedPnl   Float    @default(0.0) // Cumulative lifetime profits
+  unrealizedPnl Float    @default(0.0) // Paper profits
+  updatedAt     DateTime @updatedAt
+}
+
+model Holding {
+  symbol          String   @id
+  instrumentName  String?
+  quantity        Int
+  avgBuyPrice     Float
+  currentPrice    Float    @default(0.0)
+  totalInvestment Float // quantity * avgBuyPrice
+  unrealizedPnl   Float // (currentPrice - avgBuyPrice) * quantity 
+  updatedAt       DateTime @updatedAt
+}
+
+model Trade {
+  id        String   @id @default(uuid())
+  timestamp DateTime @default(now())
+
+  // Asset info
+  symbol         String
+  instrumentName String?
+  exchange       String  @default("NSE")
+
+  // Execution details
+  type      String // 'BUY' or 'SELL'
+  quantity  Int
+  price     Float
+  totalCost Float // quantity * price
+
+  // Costs & Taxes (Indian Market specifics)
+  brokerage      Float @default(0.0)
+  stt            Float @default(0.0) // Securities Transaction Tax
+  stampDuty      Float @default(0.0)
+  exchangeCharge Float @default(0.0)
+  sebiTurnover   Float @default(0.0)
+  totalTaxes     Float @default(0.0)
+
+  // Trade analytics
+  signal String // e.g. 'SMA_CROSS', 'MANUAL'
+  status String @default("EXECUTED") // 'PENDING', 'EXECUTED', 'FAILED'
+
+  // Realized PNL if it's a SELL trade against a previous BUY
+  realizedPnl Float?
+
+  notes String? // Optional logging
+}
+
+model Watchlist {
+  symbol  String   @id
+  addedAt DateTime @default(now())
+}
+
+model Instrument {
+  token    String  @id
+  symbol   String
+  name     String
+  exchange String  @default("NSE")
+  exch_seg String?
+}

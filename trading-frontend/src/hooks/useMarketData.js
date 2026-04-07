@@ -1,5 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { getQuote, getHistory, getMultipleQuotes, getHealth } from '../api/market';
+import { getQuote, getHistory, getMultipleQuotes, getHealth, searchInstruments } from '../api/market';
+
+export const useMarketSearch = (query) =>
+  useQuery({
+    queryKey: ['search', query],
+    queryFn: () => searchInstruments(query),
+    enabled: !!query && query.length >= 2,
+    staleTime: 600000,
+  });
 
 export const useMarketQuote = (symbol) =>
   useQuery({

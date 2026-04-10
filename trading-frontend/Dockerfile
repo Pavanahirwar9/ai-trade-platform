@@ -12,6 +12,7 @@ RUN npm run build
 FROM nginx:alpine
 # Copy the built assets from the previous stage to Nginx's hosting folder
 COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Expose port (Cloud Run defaults to 8080 or listens to EXPOSE variable)
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

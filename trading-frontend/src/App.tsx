@@ -8,6 +8,7 @@ import Market from './pages/Market';
 import Signals from './pages/Signals';
 import Portfolio from './pages/Portfolio';
 import Trades from './pages/Trades';
+import AiStrategy from './pages/AiStrategy';
 import useWatchlistStore from './store/watchlistStore';
 
 const queryClient = new QueryClient({
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/market" element={<Market />} />
             <Route path="/signals" element={<Signals />} />
+            <Route path="/ai-strategy" element={<AiStrategy />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/trades" element={<Trades />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

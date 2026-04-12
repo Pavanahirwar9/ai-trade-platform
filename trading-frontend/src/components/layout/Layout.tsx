@@ -7,6 +7,7 @@ const titles = {
   '/dashboard': 'Dashboard',
   '/market': 'Market',
   '/signals': 'Signals',
+  '/ai-strategy': 'AI Strategy',
   '/portfolio': 'Portfolio',
   '/trades': 'Trades',
 };

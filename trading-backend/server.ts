@@ -5,11 +5,14 @@
  */
 
 const app = require('./src/app');
+const http = require('http');
+const { Server } = require('socket.io');
 const config = require('./src/config/config');
 const { logger } = require('./src/middleware/logger');
 const { loadPortfolio } = require('./src/models/portfolio');
 const { loadTrades } = require('./src/models/trade');
 const { startMarketScanJob } = require('./src/jobs/marketScan');
+const { setSocketServer } = require('./src/services/aiTradeOrchestrator');
 
 // ── Load persisted data ──────────────────────────────────────────────────────
 loadPortfolio();
@@ -20,8 +23,21 @@ startMarketScanJob();
 
 // ── Start server ─────────────────────────────────────────────────────────────
 const PORT = config.port;
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: '*',
+  },
+});
 
-app.listen(PORT, () => {
+setSocketServer(io);
+
+io.on('connection', (socket) => {
+  logger.info(`Socket connected: ${socket.id}`);
+  socket.on('disconnect', () => logger.info(`Socket disconnected: ${socket.id}`));
+});
+
+httpServer.listen(PORT, () => {
   logger.info(`
 ╔══════════════════════════════════════════════════════════════╗
 ║               TRADING BOT SERVER STARTED                     ║
@@ -46,4 +62,7 @@ app.listen(PORT, () => {
   logger.info(`  TradeHist:  GET  http://localhost:${PORT}/api/trades/history`);
   logger.info(`  Portfolio:  GET  http://localhost:${PORT}/api/portfolio`);
   logger.info(`  P&L:        GET  http://localhost:${PORT}/api/portfolio/pnl`);
+  logger.info(`  AI Analyze: POST http://localhost:${PORT}/api/ai-strategy/analyze`);
+  logger.info(`  AI Start:   POST http://localhost:${PORT}/api/ai-strategy/start`);
+  logger.info(`  AI Stop:    POST http://localhost:${PORT}/api/ai-strategy/stop`);
 });

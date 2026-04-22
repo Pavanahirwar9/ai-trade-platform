@@ -9,11 +9,7 @@ RUN npm install
 # Copy frontend source
 COPY trading-frontend ./
 
-# Read backend URL at build time
-ARG VITE_API_BASE_URL
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-
-# Build the Vite project
+# Build the Vite project (will automatically use .env.production)
 RUN npm run build
 
 # Serve Phase: Use Nginx to host the static files

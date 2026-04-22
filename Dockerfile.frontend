@@ -13,3 +13,20 @@ COPY trading-frontend ./
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
+# Build the Vite project
+RUN npm run build
+
+# Serve Phase: Use Nginx to host the static files
+FROM nginx:alpine
+
+# Copy the built "dist" folder from the builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expose port 8080 
+EXPOSE 8080
+
+# Overwrite Nginx configuration for SPA routing and Cloud Run port
+RUN sed -i 's/listen  *80;/listen 8080;/g' /etc/nginx/conf.d/default.conf && \
+    sed -i 's/location \/ {/location \/ {\n        try_files $uri $uri\/ \/index.html;/g' /etc/nginx/conf.d/default.conf
+
+CMD ["nginx", "-g", "daemon off;"]

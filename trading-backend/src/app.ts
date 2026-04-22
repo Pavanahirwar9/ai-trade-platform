@@ -14,6 +14,7 @@ const signalRoutes = require('./routes/signals');
 const tradeRoutes = require('./routes/trades');
 const portfolioRoutes = require('./routes/portfolio');
 const aiStrategyRoutes = require('./routes/aiStrategy');
+const manualStrategyRoutes = require('./routes/manualStrategy');
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use('/api/signals', signalRoutes);
 app.use('/api/trades', tradeRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/ai-strategy', aiStrategyRoutes);
+app.use('/api/manual-strategy', manualStrategyRoutes);
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
 app.use((req, res) => {

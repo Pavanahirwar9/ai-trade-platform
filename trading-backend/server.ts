@@ -13,6 +13,7 @@ const { loadPortfolio } = require('./src/models/portfolio');
 const { loadTrades } = require('./src/models/trade');
 const { startMarketScanJob } = require('./src/jobs/marketScan');
 const { setSocketServer } = require('./src/services/aiTradeOrchestrator');
+const { initManualStrategyPlanner } = require('./src/services/manualStrategyPlanner');
 
 // ── Load persisted data ──────────────────────────────────────────────────────
 loadPortfolio();
@@ -20,6 +21,7 @@ loadTrades();
 
 // ── Start cron job ───────────────────────────────────────────────────────────
 startMarketScanJob();
+initManualStrategyPlanner();
 
 // ── Start server ─────────────────────────────────────────────────────────────
 const PORT = config.port;

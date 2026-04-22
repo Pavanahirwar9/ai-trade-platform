@@ -35,6 +35,7 @@ const config = {
   dataDir: path.resolve(__dirname, '../../data'),
   portfolioFile: path.resolve(__dirname, '../../data/portfolio.json'),
   tradesFile: path.resolve(__dirname, '../../data/trades.json'),
+  manualStrategiesFile: path.resolve(__dirname, '../../data/manualStrategies.json'),
 
   /** NSE Market hours (IST) */
   market: {

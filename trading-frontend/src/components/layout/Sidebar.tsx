@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, TrendingUp, Bell, Briefcase, ClipboardList, Brain, X } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, Bell, Briefcase, ClipboardList, Brain, Target, X } from 'lucide-react';
 import { formatINRCompact } from '../../utils/formatters';
 import usePortfolioStore from '../../store/portfolioStore';
 
@@ -8,6 +8,7 @@ const navItems = [
   { to: '/market', label: 'Market', Icon: TrendingUp },
   { to: '/signals', label: 'Signals', Icon: Bell },
   { to: '/ai-strategy', label: 'AI Strategy', Icon: Brain },
+  { to: '/manual-strategy', label: 'Manual Strategy', Icon: Target },
   { to: '/portfolio', label: 'Portfolio', Icon: Briefcase },
   { to: '/trades', label: 'Trades', Icon: ClipboardList },
 ];

@@ -27,6 +27,7 @@ what is  working end-to-end:
 ---
 
 ## Screenshots
+<img width="1674" height="895" alt="image" src="https://github.com/user-attachments/assets/092563d1-8c2e-4ddf-a81e-17f17f51fb23" />
 
 ---
 
